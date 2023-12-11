@@ -3,8 +3,8 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
-!**/main/kotlin/com/nabiha/configuration.kt
-!**/main/resources/logos-company/
+src/main/resources/logos-company
+src/main/kotlin/com/nabiha/configuration.kt
 
 ### STS ###
 .apt_generated

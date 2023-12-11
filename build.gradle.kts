@@ -39,6 +39,7 @@ dependencies {
     implementation("io.ktor:ktor-server-netty-jvm")
     implementation("org.postgresql:postgresql:42.2.23")
     implementation("ch.qos.logback:logback-classic:$logback_version")
+    implementation("io.ktor:ktor-server-cors-jvm:2.3.7")
     testImplementation("io.ktor:ktor-server-tests-jvm")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
     implementation ("org.mindrot:jbcrypt:0.4")
