@@ -124,11 +124,12 @@ fun Application.authController(database: Database) {
                 if (userId != null) {
                     val checkPassword = authServices.checkPassword(body.password, userId)
                     if (checkPassword) {
+                        val expirationTimeMillis =  8 * 60 * 60 * 1000
                         val token = JWT.create()
                             .withAudience(AppConfig.jwt.jwtAudience)
                             .withIssuer(AppConfig.jwt.jwtDomain)
                             .withClaim("userId", userId)
-                            .withExpiresAt(Date(System.currentTimeMillis() + 60000))
+                            .withExpiresAt(Date(System.currentTimeMillis() + expirationTimeMillis))
                             .sign(Algorithm.HMAC256(AppConfig.jwt.jwtSecret))
                         call.respond(hashMapOf("token" to token))
                     } else {

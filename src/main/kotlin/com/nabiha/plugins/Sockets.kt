@@ -1,12 +1,17 @@
 package com.nabiha.plugins
 
+import com.nabiha.generateRandomString
 import io.ktor.server.application.*
+import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*
 import java.time.Duration
 
 fun Application.configureSockets() {
+    install(CORS) {
+        anyHost()
+    }
     install(WebSockets) {
         pingPeriod = Duration.ofSeconds(15)
         timeout = Duration.ofSeconds(15)
@@ -14,7 +19,22 @@ fun Application.configureSockets() {
         masking = false
     }
     routing {
-        webSocket("/ws") { // websocketSession
+        webSocket("/chat") {
+            val session = this
+            send("You are connected!")
+            val random = generateRandomString(5)
+
+            for (frame in incoming) {
+                frame as? Frame.Text ?: continue
+                val receivedText = frame.readText()
+
+                // Broadcast the received message to all connected clients
+                outgoing.send(Frame.Text("[$random]: $receivedText"))
+            }
+
+        }
+        webSocket("/ws") {
+            // websocketSession
             for (frame in incoming) {
                 if (frame is Frame.Text) {
                     val text = frame.readText()
