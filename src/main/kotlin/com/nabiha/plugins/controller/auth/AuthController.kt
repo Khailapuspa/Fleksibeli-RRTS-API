@@ -32,9 +32,22 @@ data class AuthResponse(
 )
 
 @Serializable
+data class LoginResponseData(
+    val token: String
+)
+
+@Serializable
+data class LoginResponse(
+    val success: Boolean = true,
+    val data: LoginResponseData
+)
+
+
+@Serializable
 data class SendEmailRequest(
     val email: String,
 )
+
 @Serializable
 data class VerificationAccount(
     val code: String,
@@ -66,7 +79,7 @@ fun Application.authController(database: Database) {
         post("/register/company") {
             try {
                 val multipart = call.receiveMultipart()
-                val company = ExposedRegisterCompany("","",0,"","","")
+                val company = ExposedRegisterCompany("", "", 0, "", "", "")
 
                 multipart.forEachPart { part ->
                     if (part.name == "name" && part is PartData.FormItem) {
@@ -124,14 +137,17 @@ fun Application.authController(database: Database) {
                 if (userId != null) {
                     val checkPassword = authServices.checkPassword(body.password, userId)
                     if (checkPassword) {
-                        val expirationTimeMillis =  8 * 60 * 60 * 1000
+                        val expirationTimeMillis = 8 * 60 * 60 * 1000
                         val token = JWT.create()
                             .withAudience(AppConfig.jwt.jwtAudience)
                             .withIssuer(AppConfig.jwt.jwtDomain)
                             .withClaim("userId", userId)
                             .withExpiresAt(Date(System.currentTimeMillis() + expirationTimeMillis))
                             .sign(Algorithm.HMAC256(AppConfig.jwt.jwtSecret))
-                        call.respond(hashMapOf("token" to token))
+                        call.respond(
+                            HttpStatusCode.OK,
+                            LoginResponse(data = LoginResponseData(token = token))
+                        )
                     } else {
                         call.respond(HttpStatusCode.NotFound, ErrorRespond(message = "Wrong Password!"))
                     }
@@ -145,6 +161,13 @@ fun Application.authController(database: Database) {
         }
 
         authenticate("auth-jwt") {
+            route("/validate-token") {
+                get {
+                    val principal = call.principal<JWTPrincipal>()
+                    val userId = principal!!.payload.getClaim("userId")
+                    call.respond(HttpStatusCode.OK, mapOf("success" to true))
+                }
+            }
             get("/profile") {
                 val principal = call.principal<JWTPrincipal>()
                 val userId = principal!!.payload.getClaim("userId").asInt()
@@ -175,13 +198,13 @@ fun Application.authController(database: Database) {
                     val body = call.receive<VerificationAccount>()
                     val principal = call.principal<JWTPrincipal>()
                     val userId = principal!!.payload.getClaim("userId").asInt()
-                    val checkCode = authServices.verifyAccount(body.code,userId)
-                    if (checkCode){
+                    val checkCode = authServices.verifyAccount(body.code, userId)
+                    if (checkCode) {
                         call.respond(HttpStatusCode.OK, "User Verified!")
-                    }else{
+                    } else {
                         call.respond(HttpStatusCode.UnprocessableEntity, ErrorRespond(message = "Code not match!"))
                     }
-                }catch (e: Exception) {
+                } catch (e: Exception) {
                     call.respond(HttpStatusCode.UnprocessableEntity, ErrorRespond(message = e.message))
                 }
             }

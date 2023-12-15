@@ -1,12 +1,18 @@
 package com.nabiha.plugins
 
+import com.nabiha.AppConfig
 import com.nabiha.generateRandomString
+import com.nabiha.plugins.controller.users.UserService
+import io.ktor.network.sockets.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*
+import org.jetbrains.exposed.sql.Database
 import java.time.Duration
+import java.util.*
+import kotlin.collections.LinkedHashSet
 
 fun Application.configureSockets() {
     install(CORS) {
@@ -19,17 +25,18 @@ fun Application.configureSockets() {
         masking = false
     }
     routing {
+        val connections = Collections.synchronizedSet<DefaultWebSocketServerSession?>(LinkedHashSet())
         webSocket("/chat") {
-            val session = this
-            send("You are connected!")
+            connections.add(this)
+            send("You are connected! There are ${connections.count()} users here.")
             val random = generateRandomString(5)
 
             for (frame in incoming) {
                 frame as? Frame.Text ?: continue
                 val receivedText = frame.readText()
-
-                // Broadcast the received message to all connected clients
-                outgoing.send(Frame.Text("[$random]: $receivedText"))
+                connections.forEach {
+                    it.send(Frame.Text("[$random]: $receivedText"))
+                }
             }
 
         }
