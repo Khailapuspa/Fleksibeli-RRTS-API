@@ -23,15 +23,6 @@ fun Application.usersController(database: Database) {
     val userService = UserService(database)
     routing {
         // Read Users
-        get("/users-users") {
-            try {
-                val users = userService.reads()
-                call.respond(HttpStatusCode.OK, CreateUserResponse(datas = users))
-            } catch (e: Exception) {
-                call.respond(HttpStatusCode.UnprocessableEntity, ErrorRespond(message = e.message))
-            }
-        }
-        // Read Users
         get("/users") {
             try {
                 val users = userService.reads()

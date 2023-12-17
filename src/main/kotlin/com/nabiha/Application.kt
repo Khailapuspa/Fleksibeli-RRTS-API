@@ -18,7 +18,6 @@ fun Application.module() {
     configureDatabases()
     configureSockets()
     configureRouting()
-    githubWebhook()
 }
 
 fun ApplicationEngineEnvironmentBuilder.envConfig() {
