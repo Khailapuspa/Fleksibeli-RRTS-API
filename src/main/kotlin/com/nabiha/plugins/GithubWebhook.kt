@@ -24,7 +24,7 @@ fun Application.githubWebhook() {
             val secret = "Api Kontlin Nih"
 
             if (signature != null && isValidGitHubWebhook(payload.action, signature, secret)) {
-                val pullResult = runGitPull("C:\\Projek Android\\Bwave-Kotlin-Api")
+                val pullResult = runGitPull("D:\\projek-kila")
                 call.respondText("Git Pull Result: $pullResult", status = HttpStatusCode.OK)
             } else {
                 call.respond(HttpStatusCode.Unauthorized, "Unauthorized")
