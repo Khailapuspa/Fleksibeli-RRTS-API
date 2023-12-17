@@ -28,8 +28,4 @@ fun ApplicationEngineEnvironmentBuilder.envConfig() {
         host = AppConfig.connector.host
         port = AppConfig.connector.port
     }
-//    connector {
-//        host = "127.0.0.1"
-//        port = 9090
-//    }
 }
