@@ -23,6 +23,7 @@ fun Application.configureSockets() {
         allowMethod(HttpMethod.Delete)
         allowHeader(HttpHeaders.Authorization)
         allowHeader(HttpHeaders.ContentType)
+        allowCredentials = true
         anyHost()
     }
     install(WebSockets) {
