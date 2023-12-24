@@ -3,6 +3,7 @@ package com.nabiha.plugins
 import com.nabiha.AppConfig
 import com.nabiha.generateRandomString
 import com.nabiha.plugins.controller.users.UserService
+import io.ktor.http.*
 import io.ktor.network.sockets.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.cors.routing.*
@@ -16,6 +17,12 @@ import kotlin.collections.LinkedHashSet
 
 fun Application.configureSockets() {
     install(CORS) {
+        allowMethod(HttpMethod.Options)
+        allowMethod(HttpMethod.Put)
+        allowMethod(HttpMethod.Patch)
+        allowMethod(HttpMethod.Delete)
+        allowHeader(HttpHeaders.Authorization)
+        allowHeader(HttpHeaders.ContentType)
         anyHost()
     }
     install(WebSockets) {
